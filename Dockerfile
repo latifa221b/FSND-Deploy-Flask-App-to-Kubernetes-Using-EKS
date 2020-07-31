@@ -1,14 +1,11 @@
-FROM python:3.7.4-alpine3.10
+FROM nikolaik/python-nodejs:python3.7-nodejs14-stretch	
 
 COPY . /app
-WORKDIR /app
 
-RUN apk -U --no-cache add \
-    bash \
-    git \
-    nodejs=10.16.3-r0 \
-    npm=10.16.3-r0 &&\
-    npm i @aws-cdk/aws-ssm 
+WORKDIR /app
+COPY package*.json ./
+
+RUN npm install @aws-cdk/aws-ssm 
 RUN pip install --upgrade pip
 RUN pip install flask
 RUN pip install -r requirements.txt
