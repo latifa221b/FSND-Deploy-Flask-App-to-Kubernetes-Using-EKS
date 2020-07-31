@@ -3,7 +3,8 @@ FROM python:stretch
 COPY . /app
 WORKDIR /app
 
-RUN bash \
+RUN apk -U --no-cache add \
+    bash \
     git \
     nodejs=10.16.3-r0 \
     npm=10.16.3-r0 &&\
