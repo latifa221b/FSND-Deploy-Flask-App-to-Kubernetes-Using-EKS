@@ -12,11 +12,9 @@ import jwt
 
 # pylint: disable=import-error
 from flask import Flask, jsonify, request, abort
+from aws_cdk import core , aws_ssm as ssm
 
-
-JWT_SECRET = os.environ['JWT_SECRET']
 LOG_LEVEL = os.environ.get('LOG_LEVEL','DEBUG')
-
 
 def _logger():
     '''
@@ -40,6 +38,20 @@ LOG = _logger()
 LOG.debug("Starting with log level: %s" % LOG_LEVEL )
 APP = Flask(__name__)
 
+class demo_aws:
+ def myFunc(self):
+    self.secret_value = ssm.StringParameter.value_for_secure_string_parameter(self,"JWT_SECRET",
+    version=1)
+    return self.secret_value
+
+class hi(core.Stack):
+   def __init__(self, scope: core.Stack, id: str, **kwargs):
+        super().__init__(scope, id, **kwargs)
+    
+app = core.App()
+list = hi(app,"udacitystack")
+JWT_SECRET = demo_aws.myFunc(list)
+print(JWT_SECRET)
 def require_jwt(function):
     """
     Decorator to check valid jwt is present.
