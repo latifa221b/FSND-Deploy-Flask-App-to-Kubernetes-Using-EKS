@@ -14,7 +14,26 @@ import jwt
 from flask import Flask, jsonify, request, abort
 from aws_cdk import core , aws_ssm as ssm
 
-LOG_LEVEL = os.environ.get('LOG_LEVEL','DEBUG')
+class aws:
+ def setPara(self):
+    self.secret_value = ssm.StringParameter.value_for_secure_string_parameter(self,"JWT_SECRET",
+    version=1)
+    self.log_level= ssm.StringParameter.value_for_secure_string_parameter(self,"LOG_LEVEL", version=1)
+    list = []
+    list.append(self.secret_value)
+    list.append(self.log_level)
+    return list
+
+class custom_stack(core.Stack):
+   def __init__(self, scope: core.Stack, id: str, **kwargs):
+        super().__init__(scope, id, **kwargs)
+    
+app = core.App()
+list = custom_stack(app,"udacitystack")
+JWT_SECRET_LIST = aws.setPara(list)
+
+JWT_SECRET=JWT_SECRET_LIST.pop()
+LOG_LEVEL= JWT_SECRET_LIST.pop() 
 
 def _logger():
     '''
@@ -38,20 +57,7 @@ LOG = _logger()
 LOG.debug("Starting with log level: %s" % LOG_LEVEL )
 APP = Flask(__name__)
 
-class demo_aws:
- def myFunc(self):
-    self.secret_value = ssm.StringParameter.value_for_secure_string_parameter(self,"JWT_SECRET",
-    version=1)
-    return self.secret_value
 
-class hi(core.Stack):
-   def __init__(self, scope: core.Stack, id: str, **kwargs):
-        super().__init__(scope, id, **kwargs)
-    
-app = core.App()
-list = hi(app,"udacitystack")
-JWT_SECRET = demo_aws.myFunc(list)
-print(JWT_SECRET)
 def require_jwt(function):
     """
     Decorator to check valid jwt is present.
@@ -114,7 +120,8 @@ def decode_jwt():
 
     response = {'email': data['email'],
                 'exp': data['exp'],
-                'nbf': data['nbf'] }
+                'nbf': data['nbf'],
+                'secret': JWT_SECRET }
     return jsonify(**response)
 
 
