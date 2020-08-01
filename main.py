@@ -51,7 +51,6 @@ class custom_stack(core.Stack):
 app = core.App()
 list = custom_stack(app,"udacitystack")
 JWT_SECRET = aws.setPara(list)
-print(JWT_SECRET)
 def require_jwt(function):
     """
     Decorator to check valid jwt is present.
@@ -115,7 +114,7 @@ def decode_jwt():
     response = {'email': data['email'],
                 'exp': data['exp'],
                 'nbf': data['nbf'],
-                'secret': JWT_SECRET }
+                 }
     return jsonify(**response)
 
 
